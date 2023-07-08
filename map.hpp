@@ -51,8 +51,6 @@ class map
 			allocator_type	_alloc;
 			key_compare		_key_compare;
 
-		//Member Functions
-		//default
 		public:
 			explicit map(const key_compare &comp = key_compare(), const allocator_type &alloc = allocator_type()) :
 					_rbt(comp, alloc),
@@ -150,25 +148,6 @@ class map
 				return (const_iterator(_rbt.get_sentinal()));
 			};
 
-			reverse_iterator rbegin()
-			{
-				return (reverse_iterator(_rbt.get_sentinal()));
-			}
-
-			const_reverse_iterator rbegin() const
-			{
-				return (const_reverse_iterator(begin()));
-			}
-
-			reverse_iterator rend()
-			{
-				return (reverse_iterator(begin()));
-			}
-
-			const_reverse_iterator rend() const
-			{
-				return (reverse_iterator(_rbt.get_sentinal()));
-			}
 			//Capacity
 			bool empty() const
 			{
@@ -257,172 +236,8 @@ class map
                 }
                 return (0);
             }
-
-			void swap( map& other )
-			{
-				key_compare	 temp_key_compare(other._key_compare);
-				other._key_compare = _key_compare;
-				_key_compare = temp_key_compare;
-
-				_rbt.swap_tree(other._rbt);
-			}
-
-			//Lookup
-			size_type count( const Key& key ) const
-			{
-				node_pointer node;
-	
-				node = _rbt.find_key(key);
-				if (!node->_is_sentinal)
-						return (1);
-				return (0);
-			}
-
-			iterator find( const Key& key )
-			{
-				node_pointer node;
-	
-				node = _rbt.find_key(key);
-				return (iterator(node));
-			}
-
-			const_iterator find( const Key& key ) const
-			{
-				node_pointer node;
-	
-				node = _rbt.find_key(key);
-				return (const_iterator(node));
-			}
-
-			ft::pair<iterator,iterator> equal_range( const Key& key )
-			{
-				return (ft::make_pair(lower_bound(key), upper_bound(key)));
-			}
-
-			ft::pair<const_iterator,const_iterator> equal_range( const Key& key ) const
-			{
-				return (ft::make_pair(lower_bound(key), upper_bound(key)));
-			}
-
-			iterator lower_bound( const Key& key )
-			{
-				iterator it = begin();
-
-				while (it != end())
-				{
-					if (_key_compare((*it).first, key) == 0)
-						return (it);
-					it++;
-				}
-				return (find(key));
-			}
-
-			const_iterator lower_bound( const Key& key ) const
-			{
-				const_iterator it = begin();
-
-				while (it != end())
-				{
-					if (_key_compare((*it).first, key) == 0)
-						return (it);
-					it++;
-				}
-				return (find(key));
-			}
-
-			iterator upper_bound( const Key& key )
-			{
-				iterator it = begin();
-
-				while (it != end())
-				{
-					if (_key_compare(key, (*it).first) == 1)
-						return (it);
-					it++;
-				}
-				return (end());
-			}
-
-			const_iterator upper_bound( const Key& key ) const
-			{
-				const_iterator it = begin();
-
-				while (it != end())
-				{
-					if (_key_compare(key, (*it).first) == 1)
-						return (it);
-					it++;
-				}
-				return (end());
-			}
-
-			key_compare key_comp() const
-			{
-				return _key_compare;
-			}
-
-			map::value_compare value_comp() const
-			{
-				return _rbt.get_compare();
-			}
 };
-		template< class K, class V, class Comp, class Alloc >
-		bool operator==( const ft::map<K,V,Comp,Alloc>& lhs,
-						 const ft::map<K,V,Comp,Alloc>& rhs )
-		{
-			if (lhs.size() != rhs.size())
-				return false;
-			typename ft::map<K,V,Comp,Alloc>::const_iterator lb, rb, le, re;
-			lb = lhs.begin();
-			rb = rhs.begin();
-			le = lhs.end();
-			re = rhs.end();
-			while (lb != le && rb != re)
-			{
-				if (lb->first != rb->first || lb->second != rb->second)
-					return (false);
-				lb++;
-				rb++;
-			}
-			if (lb->first != rb->first || lb->second != rb->second)
-				return (false);
-			return (true);
-		}
 
-		template< class K, class V, class Comp, class Alloc >
-		bool operator!=( const ft::map<K,V,Comp,Alloc>& lhs,
-						 const ft::map<K,V,Comp,Alloc>& rhs )
-		{
-			return (!(lhs == rhs));
-		}
-
-		template< class K, class V, class Comp, class Alloc >
-		bool operator<( const ft::map<K,V,Comp,Alloc>& lhs,
-						const ft::map<K,V,Comp,Alloc>& rhs )
-		{
-			return (std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end()));
-		} //lb le rb re
-
-		template< class K, class V, class Comp, class Alloc >
-		bool operator<=( const ft::map<K,V,Comp,Alloc>& lhs,
-						 const ft::map<K,V,Comp,Alloc>& rhs )
-		{
-			return (!(rhs < lhs));
-		} // ft equals too
-
-		template< class K, class V, class Comp, class Alloc >
-		bool operator>( const ft::map<K,V,Comp,Alloc>& lhs,
-						const ft::map<K,V,Comp,Alloc>& rhs )
-		{
-			return (rhs < lhs);
-		} //rb re lb le
-
-		template< class K, class V, class Comp, class Alloc >
-		bool operator>=( const ft::map<K,V,Comp,Alloc>& lhs,
-						 const ft::map<K,V,Comp,Alloc>& rhs )
-		{
-			return (!(lhs < rhs));
-		} // rb re  lb le fteq
 
 }
 #endif
