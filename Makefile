@@ -12,16 +12,19 @@ all: $(NAME)
 	$(CC) -c $(CFLAGS) $<
 
 $(NAME): $(OBJECTS)
-	$(CC) $(CFLAGS) -D TEST_TYPE=full -g3 -o  $@ $^
+	$(CC)  $(CFLAGS) -g3 -o $@ $^
 
-simple: $(NAME)
-	$(CC) $(CFLAGS) -D TEST_TYPE=simple -g3 -o  $@ $^
+simple_objects:
+	$(CC) -DSIMPLE_TEST -c $(CFLAGS) $(SOURCES)
+
+simple: simple_objects
+	$(CC) -DSIMPLE_TEST $(CFLAGS) -g3 -o simple_string_sorter $(OBJECTS)
 
 clean:
 	$(RM) $(OBJECTS)
 	
 fclean: clean
-	$(RM) $(NAME)
+	$(RM) $(NAME) simple_string_sorter
 
 re: fclean all
 
