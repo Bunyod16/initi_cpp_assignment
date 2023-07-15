@@ -4,12 +4,14 @@
 using namespace std;
 #include <stack>
 
+enum Color { BLACK = 0, RED = 1 };
+
 struct Node {
   string data;
   Node *parent;
   Node *left;
   Node *right;
-  int color;
+  enum Color color;
   size_t count;
 };
 
@@ -25,7 +27,7 @@ class RedBlackTree {
     node->parent = parent;
     node->left = nullptr;
     node->right = nullptr;
-    node->color = 0;
+    node->color = BLACK;
   }
 
   // Preorder
@@ -70,66 +72,76 @@ class RedBlackTree {
   void deleteFix(NodePtr x) {
     // std::cout << "deleteFix" << std::endl;
     NodePtr s;
-    if (x == root)
-      x->count = 1;
-    while (x != root && x->color == 0) {
+    // if (x == root)
+    //   x->count = 1;
+    while (x != root && x->color == BLACK) {
       if (x == x->parent->left) {
         s = x->parent->right;
-        if (s->color == 1) {
-          s->color = 0;
-          x->parent->color = 1;
+        if (s->color == RED) {
+          s->color = BLACK;
+          x->parent->color = RED;
           // std::cout << "this one" << std::endl;
           leftRotate(x->parent);
           s = x->parent->right;
         }
 
-        if (s->left->color == 0 && s->right->color == 0) {
-          s->color = 1;
+        if (s->left->color == BLACK && s->right->color == BLACK) {
+          s->color = RED;
           x = x->parent;
         } else {
-          if (s->right->color == 0) {
-            s->left->color = 0;
-            s->color = 1;
+          if (s->right->color == BLACK) {
+            s->left->color = BLACK;
+            s->color = RED;
             rightRotate(s);
             s = x->parent->right;
-            // s->count = (s->right == TNULL ? 0 : s->right->count) + ()
+            // s->count = rightCount(s) + ()
           }
 
           s->color = x->parent->color;
-          x->parent->color = 0;
-          s->right->color = 0;
+          x->parent->color = BLACK;
+          s->right->color = BLACK;
           leftRotate(x->parent);
           x = root;
         }
       } else {
         s = x->parent->left;
-        if (s->color == 1) {
-          s->color = 0;
-          x->parent->color = 1;
+        if (s->color == RED) {
+          s->color = BLACK;
+          x->parent->color = RED;
           rightRotate(x->parent);
           s = x->parent->left;
         }
 
-        if (s->right->color == 0 && s->right->color == 0) {
-          s->color = 1;
+        if (s->right->color == BLACK && s->left->color == BLACK) {
+          s->color = RED;
           x = x->parent;
         } else {
-          if (s->left->color == 0) {
-            s->right->color = 0;
-            s->color = 1;
+          if (s->left->color == BLACK) {
+            s->right->color = BLACK;
+            s->color = RED;
             leftRotate(s);
             s = x->parent->left;
           }
 
           s->color = x->parent->color;
-          x->parent->color = 0;
-          s->left->color = 0;
+          x->parent->color = BLACK;
+          s->left->color = BLACK;
           rightRotate(x->parent);
           x = root;
         }
       }
     }
-    x->color = 0;
+    x->color = BLACK;
+  }
+
+  // return the node count in the left subtree
+  size_t leftCount(NodePtr x) {
+    return x->left == TNULL ? 0 : x->left->count;
+  }
+
+  // return the node count in the right subtree
+  size_t rightCount(NodePtr x) {
+    return x->right == TNULL ? 0 : x->right->count;
   }
 
   //                        5          6
@@ -142,7 +154,7 @@ class RedBlackTree {
       u->parent->right = v;
     }
     v->parent = u->parent;
-    v->count = (u->right == TNULL ? 0 : u->right->count) + (u->left == TNULL ? 0 : u->left->count) + 1;
+	updateCount(v);
   }
 
   void deleteNodeHelper(NodePtr node, string key) {
@@ -175,7 +187,6 @@ class RedBlackTree {
       rbTransplant(z, z->left);
     } else {
       y = minimum(z->right);
-      reduceCount(y);
       y_original_color = y->color;
       x = y->right;
       if (y->parent == z) {
@@ -195,56 +206,54 @@ class RedBlackTree {
       // no need to recount
     }
     delete z;
-    if (y_original_color == 0) {
+    if (y_original_color == BLACK) {
       deleteFix(x);
-      // x->count = (x->right == TNULL ? 0 : x->right->count) + (x->left == TNULL ? 0 : x->left->count) + 1;
     }
-      updateCount(x);
   }
 
   // For balancing the tree after insertion
   void insertFix(NodePtr k) {
     NodePtr u;
-    while (k->parent->color == 1) {
+    while (k->parent->color == RED) {
       if (k->parent == k->parent->parent->right) {
         u = k->parent->parent->left;
-        if (u->color == 1) {
-          u->color = 0;
-          k->parent->color = 0;
-          k->parent->parent->color = 1;
+        if (u->color == RED) {
+          u->color = BLACK;
+          k->parent->color = BLACK;
+          k->parent->parent->color = RED;
           k = k->parent->parent;
         } else {
           if (k == k->parent->left) {
             k = k->parent;
             rightRotate(k);
           }
-          k->parent->color = 0;
-          k->parent->parent->color = 1;
+          k->parent->color = BLACK;
+          k->parent->parent->color = RED;
           leftRotate(k->parent->parent);
         }
       } else {
         u = k->parent->parent->right;
 
-        if (u->color == 1) {
-          u->color = 0;
-          k->parent->color = 0;
-          k->parent->parent->color = 1;
+        if (u->color == RED) {
+          u->color = BLACK;
+          k->parent->color = BLACK;
+          k->parent->parent->color = RED;
           k = k->parent->parent;
         } else {
           if (k == k->parent->right) {
             k = k->parent;
             leftRotate(k);
           }
-          k->parent->color = 0;
-          k->parent->parent->color = 1;
+          k->parent->color = BLACK;
+          k->parent->parent->color = RED;
           rightRotate(k->parent->parent);
         }
       }
-      if (k == root) {
-        break;
-      }
+    //   if (k == root) {
+    //     break;
+    //   }
     }
-    root->color = 0;
+    root->color = BLACK;
   }
 
   void printHelper(NodePtr root, string indent, bool last) {
@@ -268,9 +277,11 @@ class RedBlackTree {
    public:
   RedBlackTree() {
     TNULL = new Node;
-    TNULL->color = 0;
-    TNULL->left = nullptr;
-    TNULL->right = nullptr;
+    TNULL->color = BLACK;
+	TNULL->parent = TNULL;
+    TNULL->left = TNULL;
+    TNULL->right = TNULL;
+	TNULL->count = 0;
     root = TNULL;
   }
 
@@ -347,8 +358,8 @@ class RedBlackTree {
     }
     y->left = x;
     x->parent = y;
-    x->count = (x->left == TNULL ? 0 : x->left->count) + (x->right == TNULL ? 0 : x->right->count) + 1;
-    y->count = x->count + (y->right == TNULL ? 0 : y->right->count) + 1;
+    x->count = leftCount(x) + rightCount(x) + 1;
+    y->count = leftCount(y) + rightCount(y) + 1;
   }
 
   void rightRotate(NodePtr x) {
@@ -367,21 +378,20 @@ class RedBlackTree {
     }
     y->right = x;
     x->parent = y;
-    x->count = (x->left == TNULL ? 0 : x->left->count) + (x->right == TNULL ? 0 : x->right->count) + 1;
-    y->count = x->count + (y->left == TNULL ? 0 : y->left->count) + 1;
+    x->count = leftCount(x) + rightCount(x) + 1;
+    y->count = leftCount(y) + rightCount(y) + 1;
   }
 
   // Inserting a node
   void insert(string key) {
     NodePtr node = new Node;
-    node->parent = nullptr;
     node->data = key;
     node->left = TNULL;
     node->right = TNULL;
-    node->color = 1;
+    node->color = RED;
     node->count = 1;
 
-    NodePtr y = nullptr;
+    NodePtr y = TNULL;
     NodePtr x = this->root;
 
     while (x != TNULL) {
@@ -399,18 +409,20 @@ class RedBlackTree {
       root = node;
     } else if (node->data < y->data) {
       y->left = node;
+      updateCount(y);
     } else {
       y->right = node;
+      updateCount(y);
     }
 
-    if (node->parent == nullptr) {
-      node->color = 0;
-      return;
-    }
+    // if (node->parent == nullptr) {
+    //   node->color = BLACK;
+    //   return;
+    // }
 
-    if (node->parent->parent == nullptr) {
-      return;
-    }
+    // if (node->parent->parent == nullptr) {
+    //   return;
+    // }
 
     insertFix(node);
   }
@@ -424,23 +436,16 @@ class RedBlackTree {
   }
 
   void reduceCount(NodePtr start) {
-    while (1) {
+    while (start != TNULL) {
         start->count--;
-        if (start == getRoot())
-            break;
         start = start->parent;
     }
   }
 
   void updateCount(NodePtr start) {
-    if (start == TNULL || start == nullptr)
-      return;
-    while (1) {
-        start->count = (start->right == TNULL ? 0 : start->right->count) + (start->left == TNULL ? 0 : start->left->count) + 1;
-        if (start == getRoot())
-            break;
+    while (start != TNULL) {
+        start->count = leftCount(start) + rightCount(start) + 1;
         start = start->parent;
-    }
   }
 
   void updatePathCount(stack<NodePtr> path) {
@@ -448,34 +453,34 @@ class RedBlackTree {
     while (path.size() > 0) {
         start = path.top();
         path.pop();
-        start->count = (start->right == TNULL ? 0 : start->right->count) + (start->left == TNULL ? 0 : start->left->count) + 1;
+        start->count = leftCount(start) + rightCount(start) + 1;
     }
   }
 
   NodePtr findByIndex(NodePtr node, size_t index, stack<NodePtr>& path, bool to_delete = false) {
-		size_t leftCount = (node->left == TNULL) ? 0 : node->left->count;
+		size_t leftCnt = leftCount(node);
 
     path.push(node);
-		if (leftCount == index) {
+		if (leftCnt == index) {
 			return node;
 		}
-		else if (index <= leftCount) {
+		else if (index <= leftCnt) {
 			return findByIndex(node->left, index, path, to_delete);
 		}
 		else {
-			return findByIndex(node->right, index - leftCount - 1, path, to_delete);
+			return findByIndex(node->right, index - leftCnt - 1, path, to_delete);
 		}
 	}
 
   NodePtr find(size_t index) {
     std::stack<NodePtr> path;
-  
+
     return findByIndex(getRoot(), index, path, false);
   }
 
   void deleteByIndex(size_t index) {
     std::stack<NodePtr> path;
-  
+
     NodePtr node = findByIndex(getRoot(), index, path, false);
     reduceCount(node);
     deleteNodeHelper(node, node->data);
