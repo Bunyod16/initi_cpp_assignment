@@ -94,7 +94,7 @@ class RedBlackTree {
             s->color = RED;
             rightRotate(s);
             s = x->parent->right;
-            // s->count = (s->right == TNULL ? 0 : s->right->count) + ()
+            // s->count = rightCount(s) + ()
           }
 
           s->color = x->parent->color;
@@ -134,6 +134,16 @@ class RedBlackTree {
     x->color = BLACK;
   }
 
+  // return the node count in the left subtree
+  size_t leftCount(NodePtr x) {
+    return x->left == TNULL ? 0 : x->left->count;
+  }
+
+  // return the node count in the right subtree
+  size_t rightCount(NodePtr x) {
+    return x->right == TNULL ? 0 : x->right->count;
+  }
+
   //                        5          6
   void rbTransplant(NodePtr u, NodePtr v) {
     if (u->parent == nullptr) {
@@ -144,7 +154,7 @@ class RedBlackTree {
       u->parent->right = v;
     }
     v->parent = u->parent;
-    v->count = (u->right == TNULL ? 0 : u->right->count) + (u->left == TNULL ? 0 : u->left->count) + 1;
+    v->count = leftCount(u) + rightCount(u) + 1;
   }
 
   void deleteNodeHelper(NodePtr node, string key) {
@@ -199,7 +209,7 @@ class RedBlackTree {
     delete z;
     if (y_original_color == BLACK) {
       deleteFix(x);
-      // x->count = (x->right == TNULL ? 0 : x->right->count) + (x->left == TNULL ? 0 : x->left->count) + 1;
+      // x->count = leftCount(x) + rightCount(x) + 1;
     }
       updateCount(x);
   }
@@ -349,8 +359,8 @@ class RedBlackTree {
     }
     y->left = x;
     x->parent = y;
-    x->count = (x->left == TNULL ? 0 : x->left->count) + (x->right == TNULL ? 0 : x->right->count) + 1;
-    y->count = x->count + (y->right == TNULL ? 0 : y->right->count) + 1;
+    x->count = leftCount(x) + rightCount(x) + 1;
+    y->count = leftCount(y) + rightCount(y) + 1;
   }
 
   void rightRotate(NodePtr x) {
@@ -369,8 +379,8 @@ class RedBlackTree {
     }
     y->right = x;
     x->parent = y;
-    x->count = (x->left == TNULL ? 0 : x->left->count) + (x->right == TNULL ? 0 : x->right->count) + 1;
-    y->count = x->count + (y->left == TNULL ? 0 : y->left->count) + 1;
+    x->count = leftCount(x) + rightCount(x) + 1;
+    y->count = leftCount(y) + rightCount(y) + 1;
   }
 
   // Inserting a node
@@ -438,7 +448,7 @@ class RedBlackTree {
     if (start == TNULL || start == nullptr)
       return;
     while (1) {
-        start->count = (start->right == TNULL ? 0 : start->right->count) + (start->left == TNULL ? 0 : start->left->count) + 1;
+        start->count = leftCount(start) + rightCount(start) + 1;
         if (start == getRoot())
             break;
         start = start->parent;
@@ -450,22 +460,22 @@ class RedBlackTree {
     while (path.size() > 0) {
         start = path.top();
         path.pop();
-        start->count = (start->right == TNULL ? 0 : start->right->count) + (start->left == TNULL ? 0 : start->left->count) + 1;
+        start->count = leftCount(start) + rightCount(start) + 1;
     }
   }
 
   NodePtr findByIndex(NodePtr node, size_t index, stack<NodePtr>& path, bool to_delete = false) {
-		size_t leftCount = (node->left == TNULL) ? 0 : node->left->count;
+		size_t leftCnt = leftCount(node);
 
     path.push(node);
-		if (leftCount == index) {
+		if (leftCnt == index) {
 			return node;
 		}
-		else if (index <= leftCount) {
+		else if (index <= leftCnt) {
 			return findByIndex(node->left, index, path, to_delete);
 		}
 		else {
-			return findByIndex(node->right, index - leftCount - 1, path, to_delete);
+			return findByIndex(node->right, index - leftCnt - 1, path, to_delete);
 		}
 	}
 
