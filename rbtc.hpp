@@ -25,8 +25,8 @@ class RedBlackTree {
   void initializeNULLNode(NodePtr node, NodePtr parent) {
     node->data = "";
     node->parent = parent;
-    node->left = nullptr;
-    node->right = nullptr;
+    node->left = TNULL;
+    node->right = TNULL;
     node->color = BLACK;
   }
 
@@ -146,7 +146,7 @@ class RedBlackTree {
 
   //                        5          6
   void rbTransplant(NodePtr u, NodePtr v) {
-    if (u->parent == nullptr) {
+    if (u->parent == TNULL) {
       root = v;
     } else if (u == u->parent->left) {
       u->parent->left = v;
@@ -349,7 +349,7 @@ class RedBlackTree {
       y->left->parent = x;
     }
     y->parent = x->parent;
-    if (x->parent == nullptr) {
+    if (x->parent == TNULL) {
       this->root = y;
     } else if (x == x->parent->left) {
       x->parent->left = y;
@@ -369,7 +369,7 @@ class RedBlackTree {
       y->right->parent = x;
     }
     y->parent = x->parent;
-    if (x->parent == nullptr) {
+    if (x->parent == TNULL) {
       this->root = y;
     } else if (x == x->parent->right) {
       x->parent->right = y;
@@ -405,7 +405,7 @@ class RedBlackTree {
     }
 
     node->parent = y;
-    if (y == nullptr) {
+    if (y == TNULL) {
       root = node;
     } else if (node->data < y->data) {
       y->left = node;
@@ -415,12 +415,12 @@ class RedBlackTree {
       updateCount(y);
     }
 
-    // if (node->parent == nullptr) {
+    // if (node->parent == TNULL) {
     //   node->color = BLACK;
     //   return;
     // }
 
-    // if (node->parent->parent == nullptr) {
+    // if (node->parent->parent == TNULL) {
     //   return;
     // }
 
@@ -446,6 +446,7 @@ class RedBlackTree {
     while (start != TNULL) {
         start->count = leftCount(start) + rightCount(start) + 1;
         start = start->parent;
+    }
   }
 
   void updatePathCount(stack<NodePtr> path) {
