@@ -4,7 +4,7 @@ SOURCES = test.cpp
 OBJECTS = $(SOURCES:.cpp=.o)
 
 CC = g++
-CFLAGS = -Wall -Wextra -Werror -Wno-deprecated-declarations -std=c++11
+CFLAGS = -Wall -Wextra -Werror -Wno-deprecated-declarations -g3 -fsanitize=address -std=c++11
 
 all: $(NAME)
 
@@ -12,17 +12,17 @@ all: $(NAME)
 	$(CC) -c $(CFLAGS) $<
 
 $(NAME): $(OBJECTS)
-	$(CC)  $(CFLAGS) -g3 -o $@ $^
+	$(CC)  $(CFLAGS) -o $@ $^
 
 simple_objects:
 	$(CC) -DSIMPLE_TEST -c $(CFLAGS) $(SOURCES)
 
 simple: simple_objects
-	$(CC) -DSIMPLE_TEST $(CFLAGS) -g3 -o simple_string_sorter $(OBJECTS)
+	$(CC) -DSIMPLE_TEST $(CFLAGS) -o simple_string_sorter $(OBJECTS)
 
 clean:
 	$(RM) $(OBJECTS)
-	
+
 fclean: clean
 	$(RM) $(NAME) simple_string_sorter
 

@@ -72,8 +72,8 @@ class RedBlackTree {
   void deleteFix(NodePtr x) {
     // std::cout << "deleteFix" << std::endl;
     NodePtr s;
-    if (x == root)
-      x->count = 1;
+    // if (x == root)
+    //   x->count = 1;
     while (x != root && x->color == BLACK) {
       if (x == x->parent->left) {
         s = x->parent->right;
@@ -112,7 +112,7 @@ class RedBlackTree {
           s = x->parent->left;
         }
 
-        if (s->right->color == BLACK && s->right->color == BLACK) {
+        if (s->right->color == BLACK && s->left->color == BLACK) {
           s->color = RED;
           x = x->parent;
         } else {
@@ -154,7 +154,7 @@ class RedBlackTree {
       u->parent->right = v;
     }
     v->parent = u->parent;
-    v->count = leftCount(u) + rightCount(u) + 1;
+	updateCount(v);
   }
 
   void deleteNodeHelper(NodePtr node, string key) {
@@ -187,7 +187,6 @@ class RedBlackTree {
       rbTransplant(z, z->left);
     } else {
       y = minimum(z->right);
-      reduceCount(y);
       y_original_color = y->color;
       x = y->right;
       if (y->parent == z) {
@@ -209,9 +208,7 @@ class RedBlackTree {
     delete z;
     if (y_original_color == BLACK) {
       deleteFix(x);
-      // x->count = leftCount(x) + rightCount(x) + 1;
     }
-      updateCount(x);
   }
 
   // For balancing the tree after insertion
@@ -252,9 +249,9 @@ class RedBlackTree {
           rightRotate(k->parent->parent);
         }
       }
-      if (k == root) {
-        break;
-      }
+    //   if (k == root) {
+    //     break;
+    //   }
     }
     root->color = BLACK;
   }
@@ -281,8 +278,10 @@ class RedBlackTree {
   RedBlackTree() {
     TNULL = new Node;
     TNULL->color = BLACK;
-    TNULL->left = nullptr;
-    TNULL->right = nullptr;
+	TNULL->parent = TNULL;
+    TNULL->left = TNULL;
+    TNULL->right = TNULL;
+	TNULL->count = 0;
     root = TNULL;
   }
 
@@ -386,14 +385,13 @@ class RedBlackTree {
   // Inserting a node
   void insert(string key) {
     NodePtr node = new Node;
-    node->parent = nullptr;
     node->data = key;
     node->left = TNULL;
     node->right = TNULL;
     node->color = RED;
     node->count = 1;
 
-    NodePtr y = nullptr;
+    NodePtr y = TNULL;
     NodePtr x = this->root;
 
     while (x != TNULL) {
@@ -411,18 +409,20 @@ class RedBlackTree {
       root = node;
     } else if (node->data < y->data) {
       y->left = node;
+      updateCount(y);
     } else {
       y->right = node;
+      updateCount(y);
     }
 
-    if (node->parent == nullptr) {
-      node->color = BLACK;
-      return;
-    }
+    // if (node->parent == nullptr) {
+    //   node->color = BLACK;
+    //   return;
+    // }
 
-    if (node->parent->parent == nullptr) {
-      return;
-    }
+    // if (node->parent->parent == nullptr) {
+    //   return;
+    // }
 
     insertFix(node);
   }
@@ -436,23 +436,16 @@ class RedBlackTree {
   }
 
   void reduceCount(NodePtr start) {
-    while (1) {
+    while (start != TNULL) {
         start->count--;
-        if (start == getRoot())
-            break;
         start = start->parent;
     }
   }
 
   void updateCount(NodePtr start) {
-    if (start == TNULL || start == nullptr)
-      return;
-    while (1) {
+    while (start != TNULL) {
         start->count = leftCount(start) + rightCount(start) + 1;
-        if (start == getRoot())
-            break;
         start = start->parent;
-    }
   }
 
   void updatePathCount(stack<NodePtr> path) {
